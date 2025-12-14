@@ -2,60 +2,102 @@ using UnityEngine;
 
 public class NPC_Pathfinder : MonoBehaviour
 {
-    public Transform[] points; // Сюда перетащим наши точки
-    public float speed = 2.0f; // Скорость бега
-    public Animator animator;  // Ссылка на аниматор
+    [Header("Settings")]
+    public Transform[] points;       // РўРѕС‡РєРё РјР°СЂС€СЂСѓС‚Р°
+    public float speed = 2.0f;       // РЎРєРѕСЂРѕСЃС‚СЊ
+    public Animator animator;        // РђРЅРёРјР°С‚РѕСЂ
+    [Header("Dialog")]
+    public GameObject dialogButton; // РЎСЋРґР° РїРµСЂРµС‚Р°С‰РёС€СЊ РєРЅРѕРїРєСѓ "РџРѕРїСЂРёРІРµС‚СЃС‚РІРѕРІР°С‚СЊ"
 
-    private int currentPointIndex = 0; // На какой точку идем сейчас
+    [Header("Behavior")]
+    // Р•СЃР»Рё true вЂ” NPC Р¶РґРµС‚ РєРЅРѕРїРєСѓ. Р•СЃР»Рё false вЂ” Р±РµР¶РёС‚ СЃСЂР°Р·Сѓ РїСЂРё СЃС‚Р°СЂС‚Рµ.
+    // РџРѕСЃС‚Р°РІСЊ СЌС‚Сѓ РіР°Р»РѕС‡РєСѓ РІ РРЅСЃРїРµРєС‚РѕСЂРµ, РµСЃР»Рё С…РѕС‡РµС€СЊ, С‡С‚РѕР±С‹ РѕРЅ Р¶РґР°Р»!
+    public bool waitForButton = true;
+
+    private int currentPointIndex = 0;
     private bool isFinished = false;
+    private bool canMove = false;    // Р’РЅСѓС‚СЂРµРЅРЅРёР№ С„Р»Р°Рі
+
+    void Start()
+    {
+        // Р•СЃР»Рё Р·Р°Р±С‹Р» РїСЂРёРІСЏР·Р°С‚СЊ Р°РЅРёРјР°С‚РѕСЂ РІ РёРЅСЃРїРµРєС‚РѕСЂРµ, РёС‰РµРј РµРіРѕ СЃР°РјРё
+        if (animator == null)
+            animator = GetComponent<Animator>();
+
+        // Р•СЃР»Рё РќР• Р¶РґРµРј РєРЅРѕРїРєСѓ, С‚Рѕ СЃСЂР°Р·Сѓ СЂР°Р·СЂРµС€Р°РµРј РёРґС‚Рё
+        if (!waitForButton)
+        {
+            canMove = true;
+        }
+        else
+        {
+            canMove = false;
+            // РњРѕР¶РЅРѕ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РІС‹РєР»СЋС‡РёС‚СЊ Р°РЅРёРјР°С†РёСЋ С…РѕРґСЊР±С‹, РµСЃР»Рё РѕРЅР° Р±С‹Р»Р° РІРєР»СЋС‡РµРЅР°
+            if (animator != null) animator.SetBool("IsWalking", false);
+        }
+    }
 
     void Update()
     {
-        // Если маршрут закончен, ничего не делаем
-        if (isFinished) return;
+        // 1. Р•СЃР»Рё СЃС‚РѕРёРј (Р¶РґРµРј РєРЅРѕРїРєСѓ) РёР»Рё СѓР¶Рµ РїСЂРёС€Р»Рё вЂ” РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
+        if (!canMove || isFinished) return;
 
-        // Если точек нет, выходим, чтобы не было ошибки
-        if (points.Length == 0) return;
+        // 2. Р—Р°С‰РёС‚Р° РѕС‚ РїСѓСЃС‚С‹С… С‚РѕС‡РµРє
+        if (points == null || points.Length == 0) return;
 
-        // Получаем координаты текущей цели
+        // 3. Р”РІРёРіР°РµРјСЃСЏ Рє С‚РµРєСѓС‰РµР№ С‚РѕС‡РєРµ
         Transform target = points[currentPointIndex];
+        MoveToTarget(target);
 
-        // 1. Поворачиваемся к цели
+        // 4. РџСЂРѕРІРµСЂСЏРµРј, РґРѕС€Р»Рё Р»Рё
+        if (Vector3.Distance(transform.position, target.position) < 0.1f)
+        {
+            currentPointIndex++;
+
+            // Р•СЃР»Рё С‚РѕС‡РєРё Р·Р°РєРѕРЅС‡РёР»РёСЃСЊ
+            if (currentPointIndex >= points.Length)
+            {
+                isFinished = true;
+                SitDown(target);
+            }
+        }
+    }
+
+    void MoveToTarget(Transform target)
+    {
+        // РџРѕРІРѕСЂРѕС‚
         Vector3 direction = target.position - transform.position;
-        direction.y = 0; // Чтобы он не смотрел в пол или небо
+        direction.y = 0;
         if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5);
         }
 
-        // 2. Идем к цели
+        // Р”РІРёР¶РµРЅРёРµ
         transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
-
-        // 3. Проверяем, дошли ли мы (расстояние меньше 0.1 метра)
-        if (Vector3.Distance(transform.position, target.position) < 0.1f)
-        {
-            // Переключаемся на следующую точку
-            currentPointIndex++;
-
-            // Если точки закончились (это была последняя)
-            if (currentPointIndex >= points.Length)
-            {
-                isFinished = true;
-                SitDown(target); // Садимся
-            }
-        }
     }
 
     void SitDown(Transform finalPoint)
     {
-        // Выравниваем персонажа точно как стоит последняя точка (чтобы ровно сел на стул)
+        Debug.Log("РљРћРњРђРќР”Рђ РЎРђР”РРўР¬РЎРЇ!"); // <--- Р”РѕР±Р°РІСЊ СЌС‚Рѕ
         transform.position = finalPoint.position;
         transform.rotation = finalPoint.rotation;
 
-        // Включаем анимацию сидения
-        animator.SetBool("IsSitting", true);
+        if (animator != null)
+            animator.SetBool("IsSitting", true);
 
-        Debug.Log("Я сел!");
+        Debug.Log("РЇ СЃРµР»!");
+        // РќРћР’РћР•: Р’РєР»СЋС‡Р°РµРј РєРЅРѕРїРєСѓ РґРёР°Р»РѕРіР°
+        if (dialogButton != null)
+            dialogButton.SetActive(true);
+    }
+
+    // --- Р­РўРЈ Р¤РЈРќРљР¦РР® Р’Р•РЁРђР™ РќРђ РљРќРћРџРљРЈ "РџР РРќРЇРўР¬" ---
+    public void StartRunning()
+    {
+        canMove = true;
+        // Р•СЃР»Рё Сѓ С‚РµР±СЏ РµСЃС‚СЊ РїР°СЂР°РјРµС‚СЂ РґР»СЏ С…РѕРґСЊР±С‹ РІ Р°РЅРёРјР°С‚РѕСЂРµ, СЂР°СЃРєРѕРјРјРµРЅС‚РёСЂСѓР№:
+        if(animator != null) animator.SetBool("IsWalking", true);
     }
 }
