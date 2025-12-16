@@ -3,43 +3,52 @@ using UnityEngine.UI;
 
 public class UIDisabler : MonoBehaviour
 {
-    [Header("Ссылка на UI элемент")]
-    [SerializeField] private GameObject uiToDisable; // UI который нужно отключить
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ UI пїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
+    [SerializeField] private GameObject uiToDisable; // UI пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-    private Button button; // Кэшированная ссылка на компонент кнопки
+    private Button button; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
     void Start()
     {
-        // Получаем компонент кнопки
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         button = GetComponent<Button>();
 
-        // Проверяем, что скрипт действительно на кнопке
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         if (button != null)
         {
-            // Добавляем обработчик нажатия
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             button.onClick.AddListener(DisableUI);
         }
         else
         {
-            Debug.LogError("Скрипт UIDisabler должен быть на объекте с компонентом Button!");
+            // РџСЂРѕР±СѓРµРј РЅР°Р№С‚Рё Button РІ РґРѕС‡РµСЂРЅРёС… РѕР±СЉРµРєС‚Р°С…
+            button = GetComponentInChildren<Button>();
+            if (button != null)
+            {
+                button.onClick.AddListener(DisableUI);
+            }
+            else
+            {
+                Debug.LogWarning("UIDisabler: Button РЅРµ РЅР°Р№РґРµРЅ РЅР° РѕР±СЉРµРєС‚Рµ " + gameObject.name);
+            }
         }
     }
 
-    // Метод, который вызывается при нажатии кнопки
+    // пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     public void DisableUI()
     {
         if (uiToDisable != null)
         {
             uiToDisable.SetActive(false);
-            Debug.Log($"UI элемент '{uiToDisable.name}' отключен.");
+            Debug.Log($"UI пїЅпїЅпїЅпїЅпїЅпїЅпїЅ '{uiToDisable.name}' пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
         }
         else
         {
-            Debug.LogWarning("UI элемент для отключения не назначен!");
+            Debug.LogWarning("UI пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!");
         }
     }
 
-    // Очистка при уничтожении объекта
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     private void OnDestroy()
     {
         if (button != null)

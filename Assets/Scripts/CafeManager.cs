@@ -151,7 +151,7 @@ public class CafeManager : MonoBehaviour
             // Проигрываем звук завершения ВСЕХ задач
             if (allTasksCompleteSound != null)
             {
-                AudioSource.PlayClipAtPoint(allTasksCompleteSound, Camera.main.transform.position);
+                AudioSource.PlayClipAtPoint(allTasksCompleteSound, Camera.main.transform.position, 0.2f);
             }
 
             // Воспроизводим эффект завершения всех задач
@@ -169,8 +169,6 @@ public class CafeManager : MonoBehaviour
             {
                 worldTaskUI.OnAllTasksCompleted();
             }
-
-            Debug.Log("ВСЕ ЗАДАНИЯ ВЫПОЛНЕНЫ!");
         }
     }
 
