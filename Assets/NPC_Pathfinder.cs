@@ -8,6 +8,8 @@ public class NPC_Pathfinder : MonoBehaviour
     public Animator animator;        // Аниматор
     [Header("Dialog")]
     public GameObject dialogButton; // Сюда перетащишь кнопку "Поприветствовать"
+    public Vector3 buttonOffset = new Vector3(0, 1.5f, 0); // Смещение кнопки над NPC
+    public bool followPlayer = true; // Кнопка поворачивается к игроку
 
     [Header("Behavior")]
     // Если true — NPC ждет кнопку. Если false — бежит сразу при старте.
@@ -24,6 +26,18 @@ public class NPC_Pathfinder : MonoBehaviour
         if (animator == null)
             animator = GetComponent<Animator>();
 
+        // Проверка назначения dialogButton
+        if (dialogButton == null)
+            Debug.LogWarning($"[{gameObject.name}] dialogButton не назначен! Кнопка не появится когда NPC сядет.");
+        else
+            Debug.Log($"[{gameObject.name}] dialogButton назначен: {dialogButton.name}, активен: {dialogButton.activeSelf}");
+
+        // Проверка точек маршрута
+        if (points == null || points.Length == 0)
+            Debug.LogError($"[{gameObject.name}] Точки маршрута не заданы! NPC не сможет идти.");
+        else
+            Debug.Log($"[{gameObject.name}] Точек маршрута: {points.Length}");
+
         // Если НЕ ждем кнопку, то сразу разрешаем идти
         if (!waitForButton)
         {
@@ -39,6 +53,22 @@ public class NPC_Pathfinder : MonoBehaviour
 
     void Update()
     {
+        // Поворачиваем Canvas к игроку (если кнопка активна)
+        if (isFinished && followPlayer && dialogButton != null && dialogButton.activeInHierarchy)
+        {
+            Camera mainCam = Camera.main;
+            if (mainCam != null)
+            {
+                // Поворачиваем родительский Canvas, а не саму кнопку
+                Canvas canvas = dialogButton.GetComponentInParent<Canvas>();
+                Transform toRotate = canvas != null ? canvas.transform : dialogButton.transform;
+                
+                toRotate.LookAt(mainCam.transform);
+                // Инвертируем, чтобы текст был читаемым
+                toRotate.Rotate(0, 180, 0);
+            }
+        }
+
         // 1. Если стоим (ждем кнопку) или уже пришли — ничего не делаем
         if (!canMove || isFinished) return;
 
@@ -80,17 +110,48 @@ public class NPC_Pathfinder : MonoBehaviour
 
     void SitDown(Transform finalPoint)
     {
-        Debug.Log("КОМАНДА САДИТЬСЯ!"); // <--- Добавь это
+        Debug.Log("КОМАНДА САДИТЬСЯ!");
         transform.position = finalPoint.position;
         transform.rotation = finalPoint.rotation;
 
         if (animator != null)
+        {
+            animator.SetBool("IsWalking", false);
             animator.SetBool("IsSitting", true);
+        }
 
         Debug.Log("Я сел!");
-        // НОВОЕ: Включаем кнопку диалога
+        
+        // Включаем кнопку диалога
         if (dialogButton != null)
+        {
+            // Активируем всех родителей (если они неактивны)
+            Transform parent = dialogButton.transform.parent;
+            while (parent != null)
+            {
+                parent.gameObject.SetActive(true);
+                parent = parent.parent;
+            }
+            
+            // Позиционируем кнопку (или её Canvas) над NPC
+            // Берём корневой Canvas для позиционирования
+            Canvas canvas = dialogButton.GetComponentInParent<Canvas>();
+            if (canvas != null)
+            {
+                canvas.transform.position = transform.position + buttonOffset;
+            }
+            else
+            {
+                dialogButton.transform.position = transform.position + buttonOffset;
+            }
+            
             dialogButton.SetActive(true);
+            Debug.Log("Кнопка диалога АКТИВИРОВАНА: " + dialogButton.name);
+        }
+        else
+        {
+            Debug.LogError("dialogButton НЕ НАЗНАЧЕН в инспекторе! Перетащи кнопку 'Поприветствовать' в поле Dialog Button на NPC.");
+        }
     }
 
     // --- ЭТУ ФУНКЦИЮ ВЕШАЙ НА КНОПКУ "ПРИНЯТЬ" ---

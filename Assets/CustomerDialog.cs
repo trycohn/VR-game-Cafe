@@ -3,21 +3,83 @@ using UnityEngine.UI;
 
 public class CustomerDialog : MonoBehaviour
 {
-    public GameObject dialogButton;     // Ссылка на кнопку "Поприветствовать" (чтобы скрыть её)
-    public GameObject orderUI;          // Ссылка на текст/карточку с заказом (чтобы показать её)
+    public GameObject dialogButton;     // РЎСЃС‹Р»РєР° РЅР° РєРЅРѕРїРєСѓ "РџРѕРїСЂРёРІРµС‚СЃС‚РІРѕРІР°С‚СЊ"
+    public GameObject orderUI;          // РЎСЃС‹Р»РєР° РЅР° РїР°РЅРµР»СЊ СЃ Р·Р°РєР°Р·РѕРј
+    public Transform npcTransform;      // РЎСЃС‹Р»РєР° РЅР° NPC (РґР»СЏ РїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°РЅРёСЏ)
+    public Vector3 orderOffset = new Vector3(0, 1.5f, 0); // РЎРјРµС‰РµРЅРёРµ РЅР°Рґ РіРѕР»РѕРІРѕР№
+    
+    [Header("РўРµСЂРјРёРЅР°Р»")]
+    public OrderTerminal orderTerminal; // РЎСЃС‹Р»РєР° РЅР° С‚РµСЂРјРёРЅР°Р» Р·Р°РєР°Р·РѕРІ
 
-    // Эту функцию мы привяжем к кнопке "Поприветствовать"
+    // Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё РЅР°Р¶Р°С‚РёРё РЅР° РєРЅРѕРїРєСѓ "РџРѕРїСЂРёРІРµС‚СЃС‚РІРѕРІР°С‚СЊ"
     public void OnGreetButtonClicked()
     {
-        // 1. Прячем кнопку (чтобы нельзя было нажать 2 раза)
+        // 1. РЎРєСЂС‹РІР°РµРј РєРЅРѕРїРєСѓ Рё РµС‘ СЂРѕРґРёС‚РµР»РµР№
         if (dialogButton != null)
-            dialogButton.SetActive(false);
+        {
+            // Р”РµР°РєС‚РёРІРёСЂСѓРµРј РІРµСЃСЊ Canvas РєРЅРѕРїРєРё
+            Canvas buttonCanvas = dialogButton.GetComponentInParent<Canvas>();
+            if (buttonCanvas != null)
+                buttonCanvas.gameObject.SetActive(false);
+            else
+                dialogButton.SetActive(false);
+        }
 
-        // 2. Пишем в консоль (для проверки)
-        Debug.Log("Диалог: - Здравствуйте! - Мне кофе и круассан.");
+        // 2. Р›РѕРі РІ РєРѕРЅСЃРѕР»СЊ
+        Debug.Log("РљР»РёРµРЅС‚: - Р—РґСЂР°РІСЃС‚РІСѓР№С‚Рµ! - Р’РѕС‚ РјРѕР№ Р·Р°РєР°Р·.");
 
-        // 3. Сразу показываем заказ (без задержек и звуков)
+        // 3. РџРѕРєР°Р·С‹РІР°РµРј РїР°РЅРµР»СЊ Р·Р°РєР°Р·Р°
         if (orderUI != null)
+        {
+            // РђРєС‚РёРІРёСЂСѓРµРј РІСЃРµС… СЂРѕРґРёС‚РµР»РµР№ orderUI
+            Transform parent = orderUI.transform.parent;
+            while (parent != null)
+            {
+                parent.gameObject.SetActive(true);
+                parent = parent.parent;
+            }
+            
+            // РџРѕР·РёС†РёРѕРЅРёСЂСѓРµРј РЅР°Рґ NPC
+            Canvas orderCanvas = orderUI.GetComponentInParent<Canvas>();
+            if (orderCanvas != null && npcTransform != null)
+            {
+                orderCanvas.transform.position = npcTransform.position + orderOffset;
+            }
+            
             orderUI.SetActive(true);
+            Debug.Log("Р—Р°РєР°Р· РїРѕРєР°Р·Р°РЅ: " + orderUI.name);
+            
+            // РџРѕРєР°Р·С‹РІР°РµРј РїРѕРґСЃРєР°Р·РєСѓ РЅР°Рґ С‚РµСЂРјРёРЅР°Р»РѕРј
+            if (orderTerminal != null)
+            {
+                orderTerminal.ShowHint();
+            }
+            else
+            {
+                Debug.LogWarning("OrderTerminal РЅРµ РЅР°Р·РЅР°С‡РµРЅ РІ CustomerDialog!");
+            }
+        }
+        else
+        {
+            Debug.LogError("orderUI РЅРµ РЅР°Р·РЅР°С‡РµРЅ РІ CustomerDialog!");
+        }
+    }
+    
+    void Update()
+    {
+        // РџРѕРІРѕСЂР°С‡РёРІР°РµРј Р·Р°РєР°Р· Рє РёРіСЂРѕРєСѓ
+        if (orderUI != null && orderUI.activeInHierarchy)
+        {
+            Camera mainCam = Camera.main;
+            if (mainCam != null)
+            {
+                Canvas orderCanvas = orderUI.GetComponentInParent<Canvas>();
+                if (orderCanvas != null)
+                {
+                    orderCanvas.transform.LookAt(mainCam.transform);
+                    orderCanvas.transform.Rotate(0, 180, 0);
+                }
+            }
+        }
     }
 }
