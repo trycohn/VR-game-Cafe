@@ -10098,6 +10098,7 @@ GameObject:
   - component: {fileID: 363336328}
   - component: {fileID: 363336327}
   - component: {fileID: 363336326}
+  - component: {fileID: 363336329}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -10168,7 +10169,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 363336327}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1350093201}
+        m_TargetAssemblyTypeName: NPC_Pathfinder, Assembly-CSharp
+        m_MethodName: StartRunning
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &363336327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10207,6 +10220,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 363336324}
   m_CullTransparentMesh: 1
+--- !u!114 &363336329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 363336324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 647386a5af697344abecff21a1fa174c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIDisabler
+  uiToDisable: {fileID: 589640324}
 --- !u!4 &366460069 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1954185702199389827, guid: e0f2df96b7a2b1b4eb0445c0a3be5515, type: 3}
