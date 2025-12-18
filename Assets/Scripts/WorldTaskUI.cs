@@ -91,7 +91,7 @@ public class WorldTaskUI : MonoBehaviour
         if (taskItems.Length > 0 && taskItems[0] != null)
         {
             string status = cafeManager.isTask1Complete ? "✅" : "☐";
-            taskItems[0].text = $"{status} Взять тряпку";
+            taskItems[0].text = $"{status} Взять губку";
             taskItems[0].color = cafeManager.isTask1Complete ?
                 new Color(0.4f, 0.8f, 0.4f, 1f) : new Color(0.9f, 0.9f, 0.9f, 1f);
         }
