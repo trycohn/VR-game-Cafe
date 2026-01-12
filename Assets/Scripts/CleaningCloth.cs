@@ -74,8 +74,6 @@ public class CleaningCloth : MonoBehaviour
                 cafeManager.MarkTask1Complete();
             }
         }
-
-        Debug.Log("Тряпка взята");
     }
 
     // Вызывается при отпускании тряпки

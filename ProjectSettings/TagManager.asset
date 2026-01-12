@@ -6,6 +6,7 @@ TagManager:
   tags:
   - CleaningCloth
   - Cloth
+  - Trash
   layers:
   - Default
   - TransparentFX
